@@ -4,7 +4,11 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(); // ← 이 줄 추가
-  await app.listen(3000);
+  app.enableCors({
+    origin: '*',
+  });
+  const port = process.env.PORT || 3000; // ← 이거 중요
+  await app.listen(port);
 }
 bootstrap();
+
