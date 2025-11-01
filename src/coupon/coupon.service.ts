@@ -1,18 +1,9 @@
-// src/coupon/coupon.service.ts
 import { Injectable } from '@nestjs/common';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 
-type Coupon = {
-  id: string;
-  title: string;
-  brand: string | null;
-  expireAt: string | null;
-  status: string;
-};
-
 @Injectable()
 export class CouponService {
-  private coupons: Coupon[] = [
+  private coupons = [
     {
       id: '1',
       title: '스타벅스 아메리카노',
@@ -29,42 +20,42 @@ export class CouponService {
     },
   ];
 
+  // 전체 쿠폰 목록
   findAll() {
     return this.coupons;
   }
 
-  create(dto: CreateCouponDto) {
-    const newCoupon: Coupon = {
+  // 특정 쿠폰 찾기
+  findOne(id: string) {
+    return this.coupons.find((c) => c.id === id);
+  }
+
+  // 쿠폰 생성
+  create(body: CreateCouponDto) {
+    const newCoupon = {
       id: (this.coupons.length + 1).toString(),
-      title: dto.title,
-      brand: dto.brand ?? null,       // 없으면 null
-      expireAt: dto.expireAt ?? null, // 없으면 null
-      status: dto.status ?? 'active',
+      title: body.title ?? '제목 없음',
+      brand: body.brand ?? '',
+      expireAt: body.expireAt ?? '',
+      status: 'active',
     };
     this.coupons.push(newCoupon);
     return newCoupon;
   }
-}
-findOne(id: string) {
-  return this.coupons.find((c) => c.id === id);
-}
 
-update(id: string, body: Partial<CreateCouponDto & { status?: string }>) {
-  const idx = this.coupons.findIndex((c) => c.id === id);
-  if (idx === -1) return null;
+  // 쿠폰 수정
+  update(id: string, body: Partial<CreateCouponDto & { status?: string }>) {
+    const index = this.coupons.findIndex((c) => c.id === id);
+    if (index === -1) return null;
+    this.coupons[index] = { ...this.coupons[index], ...body };
+    return this.coupons[index];
+  }
 
-  const old = this.coupons[idx];
-  const updated = {
-    ...old,
-    ...body,
-  };
-  this.coupons[idx] = updated;
-  return updated;
-}
-
-remove(id: string) {
-  const idx = this.coupons.findIndex((c) => c.id === id);
-  if (idx === -1) return false;
-  this.coupons.splice(idx, 1);
-  return true;
+  // 쿠폰 삭제
+  remove(id: string) {
+    const index = this.coupons.findIndex((c) => c.id === id);
+    if (index === -1) return false;
+    this.coupons.splice(index, 1);
+    return true;
+  }
 }

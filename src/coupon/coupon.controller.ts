@@ -1,3 +1,4 @@
+// src/coupon/coupon.controller.ts
 import {
   Body,
   Controller,
@@ -55,18 +56,25 @@ export class CouponController {
     return { success: true };
   }
 
+  // 👇 이미지 업로드
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new NotFoundException('file not found');
     }
+
+    // 여기서 나중에 OCR 붙이면 됨
     return {
       parsed: {
         title: '이미지에서 인식된 쿠폰',
         brand: '이미지브랜드',
         expireAt: '2025-12-31',
       },
+      // 디버깅용
+      filename: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype,
     };
   }
 }
