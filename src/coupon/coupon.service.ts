@@ -45,3 +45,26 @@ export class CouponService {
     return newCoupon;
   }
 }
+findOne(id: string) {
+  return this.coupons.find((c) => c.id === id);
+}
+
+update(id: string, body: Partial<CreateCouponDto & { status?: string }>) {
+  const idx = this.coupons.findIndex((c) => c.id === id);
+  if (idx === -1) return null;
+
+  const old = this.coupons[idx];
+  const updated = {
+    ...old,
+    ...body,
+  };
+  this.coupons[idx] = updated;
+  return updated;
+}
+
+remove(id: string) {
+  const idx = this.coupons.findIndex((c) => c.id === id);
+  if (idx === -1) return false;
+  this.coupons.splice(idx, 1);
+  return true;
+}
