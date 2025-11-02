@@ -25,9 +25,7 @@ export class CouponController {
     return this.couponService.findAll();
   }
 
-  // ✅ 임박 쿠폰
-  // GET /coupons/soon
-  // GET /coupons/soon?days=7
+  // ✅ 이걸 위로 올린다
   @Get('soon')
   getSoon(@Query('days') days?: string) {
     const d = days ? Number(days) : 3;
@@ -66,7 +64,6 @@ export class CouponController {
     return { success: true };
   }
 
-  // 👇 이미지 업로드
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   upload(@UploadedFile() file: Express.Multer.File) {
@@ -74,14 +71,12 @@ export class CouponController {
       throw new NotFoundException('file not found');
     }
 
-    // 여기서 나중에 OCR 붙이면 됨
     return {
       parsed: {
         title: '이미지에서 인식된 쿠폰',
         brand: '이미지브랜드',
         expireAt: '2025-12-31',
       },
-      // 디버깅용
       filename: file.originalname,
       size: file.size,
       mimetype: file.mimetype,
