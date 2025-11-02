@@ -13,6 +13,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { CouponService } from './coupon.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 
@@ -64,12 +66,31 @@ export class CouponController {
     return { success: true };
   }
 
+
+  // ✅ 이미지 업로드 → /uploads/ 에 저장 → URL 돌려줌
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads', // 프로젝트 루트 기준
+        filename: (_req, file, cb) => {
+          // uniq 이름 만들어주기
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+    }),
+  )
   upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new NotFoundException('file not found');
     }
+
+    // 여기서 나중에 OCR 붙일 자리
+    // const parsed = ocr(file.path);
+
+    // ✅ 업로드된 파일을 접근할 수 있는 URL 만들어주기
+    const imageUrl = `/uploads/${file.filename}`;
 
     return {
       parsed: {
@@ -77,6 +98,7 @@ export class CouponController {
         brand: '이미지브랜드',
         expireAt: '2025-12-31',
       },
+      imageUrl,
       filename: file.originalname,
       size: file.size,
       mimetype: file.mimetype,

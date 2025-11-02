@@ -8,6 +8,9 @@ type Coupon = {
   brand: string | null;
   expireAt: string | null;
   status: string;
+  imageUrl: string | null;
+  couponNumber: string | null; // ✅ 추가
+  barcode: string | null;      // ✅ 추가
 };
 
 @Injectable()
@@ -19,6 +22,9 @@ export class CouponService {
       brand: '스타벅스',
       expireAt: '2025-12-31',
       status: 'active',
+      imageUrl: null,
+      couponNumber: null,
+      barcode: null,
     },
     {
       id: '2',
@@ -26,6 +32,9 @@ export class CouponService {
       brand: '파리바게뜨',
       expireAt: '2025-11-30',
       status: 'active',
+      imageUrl: null,
+      couponNumber: null,
+      barcode: null,
     },
   ];
 
@@ -44,6 +53,9 @@ export class CouponService {
       brand: body.brand ?? null,
       expireAt: body.expireAt ?? null,
       status: 'active',
+      imageUrl: body.imageUrl ?? null,
+      couponNumber: body.couponNumber ?? null,
+      barcode: body.barcode ?? null,
     };
     this.coupons.push(newCoupon);
     return newCoupon;
@@ -56,7 +68,11 @@ export class CouponService {
     this.coupons[idx] = {
       ...this.coupons[idx],
       ...body,
+      imageUrl: body.imageUrl ?? this.coupons[idx].imageUrl,
+      couponNumber: body.couponNumber ?? this.coupons[idx].couponNumber,
+      barcode: body.barcode ?? this.coupons[idx].barcode,
     };
+
     return this.coupons[idx];
   }
 
@@ -66,7 +82,6 @@ export class CouponService {
     return this.coupons.length < before;
   }
 
-  // ✅ 오늘 ~ days일 안에 만료되는 쿠폰만 돌려주는 함수
   getExpiringSoon(days = 3) {
     const now = new Date();
     const end = new Date();
@@ -75,8 +90,14 @@ export class CouponService {
     return this.coupons.filter((c) => {
       if (!c.expireAt) return false;
       const exp = new Date(c.expireAt);
-      // 만료일이 오늘 이후이면서, end 이전이면 OK
       return exp >= now && exp <= end;
     });
+  }
+
+  changeStatus(id: string, status: 'active' | 'used' | 'expired') {
+    const idx = this.coupons.findIndex((c) => c.id === id);
+    if (idx === -1) return null;
+    this.coupons[idx].status = status;
+    return this.coupons[idx];
   }
 }

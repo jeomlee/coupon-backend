@@ -1,8 +1,11 @@
 // src/coupon/dto/create-coupon.dto.ts
 export class CreateCouponDto {
-    title: string;        // 쿠폰 이름 (필수)
-    brand?: string;       // 브랜드 (선택)
-    expireAt?: string;    // '2025-12-31' 형식 문자열로 받자
-    status?: string;      // active / used / expired
-  }
-  
+  title: string;
+  brand?: string | null;
+  expireAt?: string | null;
+  imageUrl?: string | null;
+
+  // ✅ 여기 추가
+  couponNumber?: string | null; // 쿠폰/기프티콘 번호
+  barcode?: string | null;      // 바코드 값 (숫자/문자열)
+}
