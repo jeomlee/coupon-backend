@@ -1,9 +1,18 @@
+// src/coupon/coupon.service.ts
 import { Injectable } from '@nestjs/common';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 
+type Coupon = {
+  id: string;
+  title: string;
+  brand: string | null;
+  expireAt: string | null;
+  status: string;
+};
+
 @Injectable()
 export class CouponService {
-  private coupons = [
+  private coupons: Coupon[] = [
     {
       id: '1',
       title: '스타벅스 아메리카노',
@@ -20,42 +29,54 @@ export class CouponService {
     },
   ];
 
-  // 전체 쿠폰 목록
   findAll() {
     return this.coupons;
   }
 
-  // 특정 쿠폰 찾기
   findOne(id: string) {
     return this.coupons.find((c) => c.id === id);
   }
 
-  // 쿠폰 생성
   create(body: CreateCouponDto) {
-    const newCoupon = {
-      id: (this.coupons.length + 1).toString(),
-      title: body.title ?? '제목 없음',
-      brand: body.brand ?? '',
-      expireAt: body.expireAt ?? '',
+    const newCoupon: Coupon = {
+      id: String(this.coupons.length + 1),
+      title: body.title,
+      brand: body.brand ?? null,
+      expireAt: body.expireAt ?? null,
       status: 'active',
     };
     this.coupons.push(newCoupon);
     return newCoupon;
   }
 
-  // 쿠폰 수정
   update(id: string, body: Partial<CreateCouponDto & { status?: string }>) {
-    const index = this.coupons.findIndex((c) => c.id === id);
-    if (index === -1) return null;
-    this.coupons[index] = { ...this.coupons[index], ...body };
-    return this.coupons[index];
+    const idx = this.coupons.findIndex((c) => c.id === id);
+    if (idx === -1) return null;
+
+    this.coupons[idx] = {
+      ...this.coupons[idx],
+      ...body,
+    };
+    return this.coupons[idx];
   }
 
-  // 쿠폰 삭제
   remove(id: string) {
-    const index = this.coupons.findIndex((c) => c.id === id);
-    if (index === -1) return false;
-    this.coupons.splice(index, 1);
-    return true;
+    const before = this.coupons.length;
+    this.coupons = this.coupons.filter((c) => c.id !== id);
+    return this.coupons.length < before;
+  }
+
+  // ✅ 오늘 ~ days일 안에 만료되는 쿠폰만 돌려주는 함수
+  getExpiringSoon(days = 3) {
+    const now = new Date();
+    const end = new Date();
+    end.setDate(now.getDate() + days);
+
+    return this.coupons.filter((c) => {
+      if (!c.expireAt) return false;
+      const exp = new Date(c.expireAt);
+      // 만료일이 오늘 이후이면서, end 이전이면 OK
+      return exp >= now && exp <= end;
+    });
   }
 }

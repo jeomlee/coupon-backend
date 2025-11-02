@@ -10,6 +10,7 @@ import {
   NotFoundException,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CouponService } from './coupon.service';
@@ -22,6 +23,15 @@ export class CouponController {
   @Get()
   findAll() {
     return this.couponService.findAll();
+  }
+
+  // ✅ 임박 쿠폰
+  // GET /coupons/soon
+  // GET /coupons/soon?days=7
+  @Get('soon')
+  getSoon(@Query('days') days?: string) {
+    const d = days ? Number(days) : 3;
+    return this.couponService.getExpiringSoon(d);
   }
 
   @Get(':id')
